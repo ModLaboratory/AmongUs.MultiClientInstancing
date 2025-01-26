@@ -86,6 +86,8 @@ https://user-images.githubusercontent.com/38029594/182777865-2ec28bfb-4815-41f4-
   </details>
 </details>
 
+# How to run multiple copies of Among Us on Windows using the Steam/Itch versions:
+Go to Among Us_Data/boot.config and remove the single-instance= line. Make sure a file called steam_appid.txt containing 945360 is present. Launch Among Us.exe, but have Steam open in the background.
 
 #
 <p align="center">This mod is not affiliated with Among Us or Innersloth LLC, and the content contained therein is not endorsed or otherwise sponsored by Innersloth LLC. Portions of the materials contained herein are property of Innersloth LLC.</p>
