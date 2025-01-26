@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using UnityEngine;
 
 namespace MCI.Patches
@@ -16,21 +16,18 @@ namespace MCI.Patches
                 controllingFigure = PlayerControl.LocalPlayer.PlayerId;
                 if (PlayerControl.AllPlayerControls.Count == 15 && !Input.GetKeyDown(KeyCode.F6)) return; //press f6 and f5 to bypass limit
                 Utils.CleanUpLoad();
-                Utils.CreatePlayerInstance(MCIPlugin.RobotName);
+                Utils.CreatePlayerInstance();
             }
 
-            if (Input.GetKeyDown(KeyCode.F9))
+            if (Input.GetKeyDown(KeyCode.F9) || Input.GetKeyDown(KeyCode.F10))
             {
-                controllingFigure++;
-                controllingFigure = Mathf.Clamp(controllingFigure, 0, PlayerControl.AllPlayerControls.Count - 1);
-                InstanceControl.SwitchTo((byte)controllingFigure);
-            }
+                int total = PlayerControl.AllPlayerControls.Count;
 
-            if (Input.GetKeyDown(KeyCode.F10))
-            {
-                controllingFigure--;
-                controllingFigure = Mathf.Clamp(controllingFigure, 0, PlayerControl.AllPlayerControls.Count - 1);
-                InstanceControl.SwitchTo((byte)controllingFigure);
+                if (total > 0)
+                {
+                    controllingFigure = (controllingFigure + 1) % total;
+                    InstanceControl.SwitchTo((byte)controllingFigure);
+                }
             }
 
             if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F6))
