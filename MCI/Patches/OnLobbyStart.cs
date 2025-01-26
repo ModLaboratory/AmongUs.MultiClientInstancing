@@ -19,7 +19,7 @@ namespace MCI.Patches
                 InstanceControl.PlayerIdClientId.Clear();
                 for (int i = 0; i < count; i++)
                 {
-                    Utils.CreatePlayerInstance();
+                    Utils.CreatePlayerInstance( );
                 }
             }
         }
