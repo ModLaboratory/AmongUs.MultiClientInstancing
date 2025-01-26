@@ -1,5 +1,6 @@
-﻿using InnerNet;
+using InnerNet;
 using System.Collections.Generic;
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -7,63 +8,65 @@ namespace MCI
 {
     public static class InstanceControl
     {
-        internal static Dictionary<int, ClientData> clients = new();
+        public static readonly Dictionary<int, ClientData> clients = [];
+        public static readonly Dictionary<byte, int> PlayerIdClientId = [];
+        public static bool Any<T>(this Il2CppSystem.Collections.Generic.List<T> list, Func<T, bool> predicate) => list.ToSystem().Any(predicate);
 
-        internal static Dictionary<byte, int> PlayerIdClientId = new();
-
-        public const int MaxID = 100;
 
         public static int AvailableId()
         {
-            for (int i = 2; i < MaxID; i++)
+            for (var i = 1; i < 128; i++)
             {
-                if (!clients.ContainsKey(i) && PlayerControl.LocalPlayer.OwnerId != i)
+                if (!AmongUsClient.Instance.allClients.Any(x => x.Id == i) && !clients.ContainsKey(i) && PlayerControl.LocalPlayer.OwnerId != i)
                     return i;
             }
+
             return -1;
         }
 
-        public static PlayerControl CurrentPlayerInPower { get; private set; }
+        public static PlayerControl CurrentPlayerInPower { get; set; }
 
         public static void SwitchTo(byte playerId)
         {
+            var newPlayer = Utils.PlayerById(playerId);
+
             PlayerControl.LocalPlayer.NetTransform.RpcSnapTo(PlayerControl.LocalPlayer.transform.position);
             PlayerControl.LocalPlayer.moveable = false;
 
             var light = PlayerControl.LocalPlayer.lightSource;
+            var savedPlayer = PlayerControl.LocalPlayer;
 
-            var newPlayer = Utils.PlayerById(playerId);
+            var pos = PlayerControl.LocalPlayer.transform.position;
+            var pos2 = newPlayer.transform.position;
 
-            HudManager.Instance.KillButton.buttonLabelText.gameObject.SetActive(false);
 
             PlayerControl.LocalPlayer = newPlayer;
-            PlayerControl.LocalPlayer.lightSource = light;
-            PlayerControl.LocalPlayer.moveable = true;
+            newPlayer.lightSource = light;
+            newPlayer.moveable = true;
 
             AmongUsClient.Instance.ClientId = PlayerControl.LocalPlayer.OwnerId;
             AmongUsClient.Instance.HostId = PlayerControl.LocalPlayer.OwnerId;
 
             HudManager.Instance.SetHudActive(true);
+            HudManager.Instance.KillButton.buttonLabelText.gameObject.SetActive(false);
 
             //hacky "fix" for twix and det
 
-            HudManager.Instance.KillButton.transform.parent.GetComponentsInChildren<Transform>().ToList().ForEach((x) => { if (x.gameObject.name == "KillButton(Clone)") Object.Destroy(x.gameObject); });
-            HudManager.Instance.KillButton.transform.GetComponentsInChildren<Transform>().ToList().ForEach((x) => { if (x.gameObject.name == "KillTimer_TMP(Clone)") Object.Destroy(x.gameObject); });
-            HudManager.Instance.transform.GetComponentsInChildren<Transform>().ToList().ForEach((x) => { if (x.gameObject.name == "KillButton(Clone)") Object.Destroy(x.gameObject); });
+            HudManager.Instance.KillButton.transform.parent.GetComponentsInChildren<Transform>().ToList().ForEach((x) => { if (x.gameObject.name == "KillButton(Clone)") UnityEngine.Object.Destroy(x.gameObject); });
+            HudManager.Instance.KillButton.transform.GetComponentsInChildren<Transform>().ToList().ForEach((x) => { if (x.gameObject.name == "KillTimer_TMP(Clone)") UnityEngine.Object.Destroy(x.gameObject); });
+            HudManager.Instance.transform.GetComponentsInChildren<Transform>().ToList().ForEach((x) => { if (x.gameObject.name == "KillButton(Clone)") UnityEngine.Object.Destroy(x.gameObject); });
 
-            light.transform.SetParent(PlayerControl.LocalPlayer.transform);
-            light.transform.localPosition = PlayerControl.LocalPlayer.Collider.offset;
+            light.transform.SetParent(PlayerControl.LocalPlayer.transform, false);
+            light.transform.localPosition = newPlayer.Collider.offset;
+            
             Camera.main.GetComponent<FollowerCamera>().SetTarget(PlayerControl.LocalPlayer);
             PlayerControl.LocalPlayer.MyPhysics.ResetMoveState(true);
             KillAnimation.SetMovement(PlayerControl.LocalPlayer, true);
             PlayerControl.LocalPlayer.MyPhysics.inputHandler.enabled = true;
             CurrentPlayerInPower = newPlayer;
-        }
 
-        public static void SwitchTo(int clientId)
-        {
-            byte? id = PlayerIdClientId.Keys.FirstOrDefault((byte x) => PlayerIdClientId[x] == clientId);
-            if (id != null) SwitchTo((byte)id);
+            newPlayer.NetTransform.RpcSnapTo(pos2);
+            savedPlayer.NetTransform.RpcSnapTo(pos);
         }
     }
 }
