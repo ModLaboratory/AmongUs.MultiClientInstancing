@@ -28,6 +28,7 @@ https://user-images.githubusercontent.com/38029594/182777865-2ec28bfb-4815-41f4-
 
 | Among Us Version | Download |
 |----------|-------------|
+| v2024.10.29 | [v0.0.7 beta](https://github.com/vicuuu/AmongUs.MultiClientInstancing/releases/tag/v0.0.7)
 | v2023.6.13 | [v0.0.6](https://github.com/MyDragonBreath/AmongUs.MultiClientInstancing/releases/tag/v0.0.6)
 | v2023.2.28 | [v0.0.5](https://github.com/MyDragonBreath/AmongUs.MultiClientInstancing/releases/tag/v0.0.5)
 | v2022.12.14 | [v0.0.4](https://github.com/MyDragonBreath/AmongUs.MultiClientInstancing/releases/tag/v0.0.4)
