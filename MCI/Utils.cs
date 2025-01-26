@@ -1,8 +1,9 @@
-﻿using Hazel;
+using BepInEx.Unity.IL2CPP.Utils;
 using InnerNet;
+using System.Collections; 
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace MCI
 {
@@ -16,30 +17,44 @@ namespace MCI
                 InstanceControl.PlayerIdClientId.Clear();
             }
         }
-        public static PlayerControl CreatePlayerInstance(string name = "", int id = -1)
+
+        public static void CreatePlayerInstances(int count) => AmongUsClient.Instance.StartCoroutine(CoCreatePlayerInstances(count));
+
+        public static IEnumerator CoCreatePlayerInstances(int count)
         {
-            PlatformSpecificData samplePSD = new()
+            for (var i = 0; i < count; i++)
+                yield return CoCreatePlayerInstance();
+        }
+
+        public static void CreatePlayerInstance() => AmongUsClient.Instance.StartCoroutine(CoCreatePlayerInstance());
+
+        public static IEnumerator CoCreatePlayerInstance()
+        {
+            var sampleId = InstanceControl.AvailableId();
+            var sampleC = new ClientData(sampleId, $"Bot-{sampleId}", new()
             {
                 Platform = Platforms.StandaloneWin10,
                 PlatformName = "Bot"
-            };
+            }, 1, "", "robotmodeactivate");
 
-            int sampleId = id;
-            if (sampleId == -1) sampleId = InstanceControl.AvailableId();
+            AmongUsClient.Instance.GetOrCreateClient(sampleC);
+            yield return AmongUsClient.Instance.CreatePlayer(sampleC);
 
-            var sampleC = new ClientData(sampleId, name + $"-{sampleId}", samplePSD, 5, "", "");
-
-            AmongUsClient.Instance.CreatePlayer(sampleC);
-            AmongUsClient.Instance.allClients.Add(sampleC);
-
-            sampleC.Character.SetName(name + $" {sampleC.Character.PlayerId}");
-            if (MCIPlugin.IKnowWhatImDoing) sampleC.Character.SetName(name + $" {{{sampleC.Character.PlayerId}:{sampleId}}}");
+            sampleC.Character.SetName($"Bot {sampleC.Character.PlayerId}");
             sampleC.Character.SetSkin(HatManager.Instance.allSkins[Random.Range(0, HatManager.Instance.allSkins.Count)].ProdId, 0);
             sampleC.Character.SetColor(Random.Range(0, Palette.PlayerColors.Length));
             sampleC.Character.SetHat("hat_NoHat", 0);
+            sampleC.Character.SetVisor("visor_EmptyVisor", 0);
+            sampleC.Character.SetNamePlate(HatManager.Instance.allNamePlates[Random.Range(0, HatManager.Instance.allNamePlates.Count)].ProdId);
+            sampleC.Character.SetPet(HatManager.Instance.allPets[Random.Range(0, HatManager.Instance.allPets.Count)].ProdId);
 
-            InstanceControl.clients.Add(sampleId, sampleC);
+            if (!InstanceControl.clients.ContainsKey(sampleId))
+            {
+                InstanceControl.clients.Add(sampleId, sampleC);
+            }
+
             InstanceControl.PlayerIdClientId.Add(sampleC.Character.PlayerId, sampleId);
+
             sampleC.Character.MyPhysics.ResetAnimState();
             sampleC.Character.MyPhysics.ResetMoveState();
 
@@ -48,8 +63,10 @@ namespace MCI
                 SubmergedCompatibility.ImpartSub(sampleC.Character);
             }
 
-            return sampleC.Character;
+            yield return sampleC;
         }
+
+
 
         public static void UpdateNames(string name)
         {
@@ -60,15 +77,11 @@ namespace MCI
             }
         }
 
-        public static PlayerControl PlayerById(byte id)
-        {
-            foreach (var player in PlayerControl.AllPlayerControls)
-            {
-                if (player.PlayerId == id)
-                    return player;
-            }
-            return null;
-        }
+        public static List<T> ToSystem<T>(this Il2CppSystem.Collections.Generic.List<T> list) => [.. list.ToArray()];
+        public static List<PlayerControl> AllPlayers() => PlayerControl.AllPlayerControls.ToSystem();
+        public static PlayerControl PlayerById(byte id) => AllPlayers().Find(x => x.PlayerId == id);
+
+
 
         public static void RemovePlayer(byte id)
         {
@@ -79,10 +92,21 @@ namespace MCI
             AmongUsClient.Instance.allClients.Remove(outputData);
         }
 
+        /*
         public static void RemoveAllPlayers()
         {
-            foreach (byte playerId in InstanceControl.PlayerIdClientId.Keys) RemovePlayer(playerId);
-            InstanceControl.SwitchTo(AmongUsClient.Instance.allClients[0].Character.PlayerId);
+            InstanceControl.PlayerIdClientId.Keys.ForEach(RemovePlayer);
+            InstanceControl.SwitchTo(0);
+        }
+        */
+
+        public static void RemoveAllPlayers()
+        {
+            foreach (var playerId in InstanceControl.PlayerIdClientId.Keys.ToList())
+            {
+                RemovePlayer(playerId);
+            }
+            InstanceControl.SwitchTo(0);
         }
     }
 }
