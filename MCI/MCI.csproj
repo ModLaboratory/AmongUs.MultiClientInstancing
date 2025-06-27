@@ -11,20 +11,11 @@
 		<AmongUs>H:\AmongUs\AmongUs</AmongUs>
     </PropertyGroup>
 
-    <PropertyGroup>
-        <GamePlatform Condition="'$(GamePlatform)' == ''">Steam</GamePlatform>
-        <GameVersion Condition="'$(GamePlatform)' == 'Steam'">2024.10.29</GameVersion>
-        <GameVersion Condition="'$(GamePlatform)' == 'Itch'">2024.10.29</GameVersion>
-    </PropertyGroup>
-
     <ItemGroup>
         <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.735" />
         <PackageReference Include="BepInEx.IL2CPP.MSBuild" Version="2.0.1" PrivateAssets="all" />
-        <PackageReference Include="System.Text.Json" Version="6.0.10" PrivateAssets="all" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Update="AmongUs.GameLibs.Steam" Version="2025.4.15" />
+		<PackageReference Include="AmongUs.GameLibs.Steam" Version="2025.4.15" />
+		<PackageReference Include="System.Text.Json" Version="6.0.10" PrivateAssets="all" />
     </ItemGroup>
 
     <Target Name="Copy" AfterTargets="Build" Condition="'$(AmongUs)' != ''">
