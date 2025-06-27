@@ -77,7 +77,7 @@ namespace MCI
             }
         }
 
-        public static List<T> ToSystem<T>(this Il2CppSystem.Collections.Generic.List<T> list) => [.. list.ToArray()];
+        public static List<T> ToSystem<T>(this Il2CppSystem.Collections.Generic.List<T> list) => new(list.ToArray());
         public static List<PlayerControl> AllPlayers() => PlayerControl.AllPlayerControls.ToSystem();
         public static PlayerControl PlayerById(byte id) => AllPlayers().Find(x => x.PlayerId == id);
 

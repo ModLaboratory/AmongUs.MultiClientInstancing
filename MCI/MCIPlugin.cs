@@ -6,12 +6,13 @@ using UnityEngine.SceneManagement;
 
 namespace MCI
 {
-    [BepInAutoPlugin("dragonbreath.au.mci", "MCI", VersionString)]
+    [BepInPlugin(Id, "MCI", VersionString)]
     [BepInProcess("Among Us.exe")]
     [BepInDependency(SubmergedCompatibility.SUBMERGED_GUID, BepInDependency.DependencyFlags.SoftDependency)]
     public partial class MCIPlugin : BasePlugin
     {
         public const string VersionString = "0.0.6";
+        public const string Id = "dragonbreath.au.mci";
         internal static Version vVersion = new(VersionString);
         public Harmony Harmony { get; } = new(Id);
 

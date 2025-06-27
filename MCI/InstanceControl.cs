@@ -8,8 +8,8 @@ namespace MCI
 {
     public static class InstanceControl
     {
-        public static readonly Dictionary<int, ClientData> clients = [];
-        public static readonly Dictionary<byte, int> PlayerIdClientId = [];
+        public static readonly Dictionary<int, ClientData> clients = new();
+        public static readonly Dictionary<byte, int> PlayerIdClientId = new();
         public static bool Any<T>(this Il2CppSystem.Collections.Generic.List<T> list, Func<T, bool> predicate) => list.ToSystem().Any(predicate);
 
 
